@@ -1,0 +1,37 @@
+trigger:
+- main
+
+variables:
+  DBT_CLOUD_API_TOKEN: $(API Token)
+
+stages:
+- stage: Build
+
+  jobs:
+  - job: setup
+    pool:
+     vmImage: 'ubuntu-latest'
+    strategy:
+      matrix:
+        Python37:
+          python.version: '3.7'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(python.version)'
+      displayName: 'Use Python $(python.version)'
+
+    - script: |
+        python -m pip install --upgrade pip
+        pip install requests
+      displayName: 'Install dependencies'
+      
+  
+  - job: DBT
+    dependsOn: setup
+    condition: succeeded('setup')
+    steps:
+    - script: 
+       dbt.py
+        
+       
